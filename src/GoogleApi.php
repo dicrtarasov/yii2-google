@@ -3,7 +3,6 @@ namespace dicr\google;
 
 use yii\base\Component;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Url;
 
 /**
  * Компонент для настройки и создания клиента Google API.
@@ -56,10 +55,6 @@ class GoogleApi extends Component
         // default Application Name
         if (!isset($this->clientConfig['application_name'])) {
             $this->clientConfig['application_name'] = \Yii::$app->name;
-        }
-
-        if (!isset($this->clientConfig['redirect_uri'])) {
-            $this->clientConfig['redirect_uri'] = Url::to(['/google/oauth/return'], true);
         }
     }
 
