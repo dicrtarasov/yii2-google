@@ -93,10 +93,14 @@ class GoogleApi extends Component
         // разворачиваем алиас в authConfig
         if (is_string($this->authConfig)) {
             $this->authConfig = \Yii::getAlias($this->authConfig, true);
-
+            /*
             // устанавливаем переменные окружения для сервисных аккаунтов
             // @link https://github.com/googleapis/google-api-php-client/blob/master/docs/oauth-server.md
             putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $this->authConfig);
+
+            // указываем что имеется конфиг для сервисных аккаунтов
+            $this->clientConfig['useApplicationDefaultCredentials'] = true;
+            */
         }
 
         $this->scopes = (array)($this->scopes ?: []);
