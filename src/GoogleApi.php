@@ -6,6 +6,11 @@ use yii\base\Component;
 /**
  * Компонент для настройки и создания клиента Google API.
  *
+ * Авторизация работает в разных режимах:
+ * - Web OAUTH - запрашивает доступ к данным пользователя и работает через токен.
+ * - Service Account - работает от собственного сервисного аккаунта Google. Для доступа к данным, пользователь должен
+ *   расшарить доступ этому аккаунту.
+ *
  * @property-read \Google_Client $client клиент Google API
  *
  * @link https://github.com/googleapis/google-api-php-client PHP-клиент с примерами и документацией
@@ -24,8 +29,6 @@ class GoogleApi extends Component
      *
      * Пример:
      * [
-     *  'client_id' => 'XXXXXXXXXXXX.apps.googleusercontent.com',
-     *  'client_secret' => 'XXXXXXXXXXXX',
      *  'access_type' => 'offline',
      *  'prompt' => 'select_account consent',
      *  'include_granted_scopes' => true
@@ -93,14 +96,6 @@ class GoogleApi extends Component
         // разворачиваем алиас в authConfig
         if (is_string($this->authConfig)) {
             $this->authConfig = \Yii::getAlias($this->authConfig, true);
-            /*
-            // устанавливаем переменные окружения для сервисных аккаунтов
-            // @link https://github.com/googleapis/google-api-php-client/blob/master/docs/oauth-server.md
-            putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $this->authConfig);
-
-            // указываем что имеется конфиг для сервисных аккаунтов
-            $this->clientConfig['useApplicationDefaultCredentials'] = true;
-            */
         }
 
         $this->scopes = (array)($this->scopes ?: []);
