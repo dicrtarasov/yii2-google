@@ -1,7 +1,17 @@
 <?php
+/**
+ * @author Igor A Tarasov <develop@dicr.org>
+ * @version 08.07.20 08:05:22
+ */
+
+declare(strict_types = 1);
 namespace dicr\google;
 
+use Google_Client;
+use Google_Exception;
+use Yii;
 use yii\base\Component;
+use function is_string;
 
 /**
  * Компонент для настройки и создания клиента Google API.
@@ -11,14 +21,13 @@ use yii\base\Component;
  * - Service Account - работает от собственного сервисного аккаунта Google. Для доступа к данным, пользователь должен
  *   расшарить доступ этому аккаунту.
  *
- * @property-read \Google_Client $client клиент Google API
+ * @property-read Google_Client $client клиент Google API
  *
  * @link https://github.com/googleapis/google-api-php-client PHP-клиент с примерами и документацией
  * @link https://cloud.google.com/docs/authentication документация по авторизации Google
  * @link https://console.developers.google.com регистрация приложения и управление ключами доступа
  *
- * @author Igor (Dicr) Tarasov <develop@dicr.org>
- * @version 2019
+ * @noinspection PhpUnused
  */
 class GoogleApi extends Component
 {
@@ -34,8 +43,8 @@ class GoogleApi extends Component
      *  'include_granted_scopes' => true
      * ]
      *
-     *  @see \Google_Client::__construct()
-     *  @link https://github.com/googleapis/google-api-php-client
+     * @see \Google_Client::__construct()
+     * @link https://github.com/googleapis/google-api-php-client
      */
     public $clientConfig = [];
 
@@ -44,8 +53,8 @@ class GoogleApi extends Component
      * Может быть путь к файлу auth.json, скачанному с Google Developer Console при создании приложения,
      * либо массив парамеров из файла json
      *
-     * Прмер:
-     *  @app/config/auth.json
+     * Пример:
+     * @app/config/auth.json
      *
      *  либо:
      *  [
@@ -80,22 +89,21 @@ class GoogleApi extends Component
     public $scopes = [];
 
     /**
-     * {@inheritDoc}
-     * @see \yii\base\BaseObject::init()
+     * @inheritDoc
      */
     public function init()
     {
         // client config
-        $this->clientConfig = (array)($this->clientConfig ?: []);
+        $this->clientConfig = $this->clientConfig ?: [];
 
         // default Application Name
-        if (!isset($this->clientConfig['application_name'])) {
-            $this->clientConfig['application_name'] = \Yii::$app->name;
+        if (! isset($this->clientConfig['application_name'])) {
+            $this->clientConfig['application_name'] = Yii::$app->name;
         }
 
         // разворачиваем алиас в authConfig
         if (is_string($this->authConfig)) {
-            $this->authConfig = \Yii::getAlias($this->authConfig, true);
+            $this->authConfig = Yii::getAlias($this->authConfig);
         }
 
         $this->scopes = (array)($this->scopes ?: []);
@@ -104,34 +112,35 @@ class GoogleApi extends Component
     /**
      * Создает и настраивает клиента API Google.
      *
-     * @param array $config дополнительные парамеры клиента, перезаписывающие парамеры конфига по-умлчанию.
+     * @param array $config дополнительные парамеры клиента, перезаписывающие парамеры конфига по-умолчанию.
      * Конфиг клиента это парамеры объекта \Google_Client, а также параметр scopes
      *
-     * @return \Google_Client
+     * @return Google_Client
+     * @throws Google_Exception
      */
     public function getClient(array $config = [])
     {
         // объединяем с парамерами по-умолчанию
-        if (!empty($this->clientConfig)) {
+        if (! empty($this->clientConfig)) {
             $config = array_merge($this->clientConfig, $config);
         }
 
         // создаем клиента
-        $client = new \Google_Client($config);
+        $client = new Google_Client($config);
 
         // устанавливаем параметры авторизации
-        if (!empty($this->authConfig)) {
+        if (! empty($this->authConfig)) {
             $client->setAuthConfig($this->authConfig);
         }
 
         // устанавливаем scopes
-        if (!empty($this->scopes)) {
+        if (! empty($this->scopes)) {
             $client->setScopes($this->scopes);
         }
 
         // получаем токен из сессии пользователя
         $token = static::getSessionToken();
-        if (!empty($token)) {
+        if (! empty($token)) {
             // устанавливаем токен доступа
             $client->setAccessToken($token);
 
@@ -139,11 +148,11 @@ class GoogleApi extends Component
             if ($client->isAccessTokenExpired()) {
                 // получаем токен обновления
                 $refreshToken = $client->getRefreshToken();
-                if (!empty($refreshToken)) {
+                if (! empty($refreshToken)) {
                     // пытаемся получить новый токен
                     $token = $client->fetchAccessTokenWithRefreshToken($refreshToken);
                     // сохраняем новый в сессии пользователя
-                    if (!empty($token)) {
+                    if (! empty($token)) {
                         static::setSessionToken($token);
                     }
                 }
@@ -156,7 +165,7 @@ class GoogleApi extends Component
     /**
      * Возвращает токены доступа сохраненные в сессии пользователя.
      *
-     * @return array данные токена, полученные от Google и сохраненны в сессии
+     * @return array данные токена, полученные от Google и сохранённые в сессии
      * [
      *    'access_token' => 'XXXXXXX',
      *    'expires_in' => 3600
@@ -168,11 +177,11 @@ class GoogleApi extends Component
      */
     public static function getSessionToken()
     {
-        $data = \Yii::$app->session->get(static::class, []);
+        $data = Yii::$app->session->get(static::class, []);
         $token = $data['token'] ?? null;
 
         // если в токене ошибка, то удаляем его
-        if (!empty($token) && !empty($token['error'])) {
+        if (! empty($token) && ! empty($token['error'])) {
             $token = null;
         }
 
@@ -187,18 +196,18 @@ class GoogleApi extends Component
     public static function setSessionToken(array $token = null)
     {
         // сбрасываем некорректный токен
-        if (!empty($token) && !empty($token['error'])) {
+        if (! empty($token) && ! empty($token['error'])) {
             $token = null;
         }
 
         // получаем данные сессии
-        $data = \Yii::$app->session->get(static::class, []);
-        if (!empty($token)) {
+        $data = Yii::$app->session->get(static::class, []);
+        if (! empty($token)) {
             $data['token'] = $token;
         } else {
             unset($data['token']);
         }
 
-        \Yii::$app->session->set(static::class, $data);
+        Yii::$app->session->set(static::class, $data);
     }
 }

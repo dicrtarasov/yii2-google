@@ -1,20 +1,28 @@
 <?php
+/**
+ * @author Igor A Tarasov <develop@dicr.org>
+ * @version 08.07.20 08:07:54
+ */
+
+declare(strict_types = 1);
 namespace dicr\google;
 
+use app\modules\google\GoogleModule;
+use Yii;
 use yii\helpers\Url;
 use yii\web\Controller;
+use yii\web\Response;
+use function is_array;
 
 /**
  * Oauth 2.0 client по-умолчанию.
  *
- * Cохраняет токен в сессии и делает переадресацию обратно.
+ * Сохраняет токен в сессии и делает переадресацию обратно.
  * Если необходимо другие действия, то необходимо клиенту установить другой
- * адрес обработчика через retur_uri.
+ * адрес обработчика через return_uri.
  *
- * @property \app\modules\google\GoogleModule $module
- *
- * @author Igor (Dicr) Tarasov <develop@dicr.org>
- * @version 2019
+ * @property GoogleModule $module
+ * @noinspection PhpUnused
  */
 class OauthController extends Controller
 {
@@ -29,17 +37,17 @@ class OauthController extends Controller
     }
 
     /**
-     * Авторизирует пользователя токеном из сессии.
+     * Авторизует пользователя токеном из сессии.
      *
      * @param string|array $returnUrl URL для возврата после авторизации
      * @param string|array $callbackUrl URL для обработки кода доступа от Google
-     * @return \yii\web\Response
+     * @return Response
      */
     public function actionIndex($returnUrl = null, $callbackUrl = null)
     {
         // адрес откуда пришли на авторизацию
         if (empty($returnUrl)) {
-            $returnUrl = \Yii::$app->request->referrer;
+            $returnUrl = Yii::$app->request->referrer;
         }
 
         if (is_array($returnUrl)) {
@@ -59,7 +67,7 @@ class OauthController extends Controller
         $client = $this->module->api->client;
 
         // если токен свежий, то сразу возвращаемся
-        if (!$client->isAccessTokenExpired()) {
+        if (! $client->isAccessTokenExpired()) {
             return $this->redirect($returnUrl, 303);
         }
 
@@ -67,9 +75,9 @@ class OauthController extends Controller
         $client->setRedirectUri($callbackUrl);
 
         // попробуем обновить токен через refresh_token, если имеется
-        if (!empty($client->getRefreshToken())) {
+        if (! empty($client->getRefreshToken())) {
             $token = $client->fetchAccessTokenWithRefreshToken();
-            if (!empty($token)) {
+            if (! empty($token)) {
                 // сохраняем токен в сессии
                 $this->module->api->sessionToken = $token;
 
@@ -79,7 +87,7 @@ class OauthController extends Controller
         }
 
         // сохраняем адрес возврата
-        \Yii::$app->user->returnUrl = $returnUrl;
+        Yii::$app->user->returnUrl = $returnUrl;
 
         // отправляем пользователя на страницу авторизации
         return $this->redirect($client->createAuthUrl(), 303);
@@ -93,10 +101,11 @@ class OauthController extends Controller
      *
      * @param string $code auth code
      * @param string $error error message when access denied
+     * @return string|Response
      */
     public function actionReturn($code = null, $error = null)
     {
-        if (!empty($code)) {
+        if (! empty($code)) {
             // создаем клиент
             $client = $this->module->api->client;
 
@@ -105,12 +114,12 @@ class OauthController extends Controller
 
             // получаем токен по коду авторизации
             $token = $client->fetchAccessTokenWithAuthCode($code);
-            if (!empty($token)) {
+            if (! empty($token)) {
                 // сохраняем токен в сессии
                 $this->module->api->setSessionToken($token);
 
                 // возвращаемся обратно
-                return $this->redirect(\Yii::$app->user->returnUrl, 303);
+                return $this->redirect(Yii::$app->user->returnUrl, 303);
             }
         }
 
