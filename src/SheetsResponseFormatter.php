@@ -8,7 +8,7 @@ declare(strict_types = 1);
 namespace dicr\google;
 
 use ArrayAccess;
-use Google_Client;
+use Google\Client;
 use Google_Service_Sheets;
 use Google_Service_Sheets_AppendCellsRequest;
 use Google_Service_Sheets_BatchUpdateSpreadsheetRequest;
@@ -33,6 +33,7 @@ use yii\db\Query;
 use yii\di\Instance;
 use yii\web\Response;
 use yii\web\ResponseFormatterInterface;
+
 use function count;
 use function is_array;
 use function is_iterable;
@@ -50,8 +51,6 @@ use function is_object;
  *
  * @property Google_Service_Sheets $service сервис SpreadSheets
  * @property Google_Service_Sheets_Spreadsheet $spreadSheet документ (таблица)
- *
- * @noinspection PhpUnused
  */
 class SheetsResponseFormatter extends Component implements ResponseFormatterInterface
 {
@@ -61,7 +60,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
     /** @var string название файла документа таблицы на диске */
     public $name;
 
-    /** @var array|null ассоциативный массив колонок данных и их названий [field => Title] */
+    /** @var ?array ассоциативный массив колонок данных и их названий [field => Title] */
     public $fields;
 
     /** @var int кол-во строк таблицы отправляемых в одном запросе.
@@ -70,7 +69,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
      */
     public $rowsPerRequest = self::ROWS_PER_REQUEST_DEFAULT;
 
-    /** @var Google_Client|null авторизованный клиент Google Api */
+    /** @var ?Client авторизованный клиент Google Api */
     public $client;
 
     /** @var array конфиг для \Google_Service_Sheets_CellFormat */
@@ -82,7 +81,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
     /** @var int идентификатор листа таблицы в документе */
     public $sheetId = 1;
 
-    /** @var Google_Service_Sheets|null */
+    /** @var ?Google_Service_Sheets */
     private $_service;
 
     /** @var Google_Service_Sheets_Spreadsheet документ */
@@ -95,7 +94,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
      * @inheritDoc
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init() : void
     {
         parent::init();
 
@@ -112,12 +111,12 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
         }
 
         // проверяем установку документа, сервиса или клиента
-        if (isset($this->_spreadSheet)) {
+        if ($this->_spreadSheet !== null) {
             $this->_spreadSheet = Instance::ensure($this->_spreadSheet, Google_Service_Sheets_Spreadsheet::class);
-        } elseif (isset($this->_service)) {
+        } elseif ($this->_service !== null) {
             $this->_service = Instance::ensure($this->_service, Google_Service_Sheets::class);
-        } elseif (isset($this->client)) {
-            $this->client = Instance::ensure($this->client, Google_Client::class);
+        } elseif ($this->client !== null) {
+            $this->client = Instance::ensure($this->client, Client::class);
         } else {
             throw new InvalidConfigException('client должен быть установлен, если не задан service или spreadSheet');
         }
@@ -133,23 +132,14 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
      *
      * @return Google_Service_Sheets
      */
-    public function getService()
+    public function getService() : Google_Service_Sheets
     {
-        if (! isset($this->_service)) {
+        if ($this->_service === null) {
+            /** @noinspection PhpParamsInspection */
             $this->_service = new Google_Service_Sheets($this->client);
         }
 
         return $this->_service;
-    }
-
-    /**
-     * Устанавливает сервис SpreadSheets.
-     *
-     * @param Google_Service_Sheets_Spreadsheet $service
-     */
-    public function setService(Google_Service_Sheets_Spreadsheet $service)
-    {
-        $this->_service = $service;
     }
 
     /**
@@ -158,10 +148,11 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
      * @param array $config
      * @return Google_Service_Sheets_Spreadsheet
      */
-    public function getSpreadSheet(array $config = [])
+    public function getSpreadSheet(array $config = []) : Google_Service_Sheets_Spreadsheet
     {
-        if (! isset($this->_spreadSheet)) {
+        if ($this->_spreadSheet === null) {
             // создаем по-умолчанию
+            /** @noinspection PhpMethodParametersCountMismatchInspection */
             $spreadsheet = new Google_Service_Sheets_Spreadsheet(array_merge([
                 'properties' => new Google_Service_Sheets_SpreadsheetProperties([
                     'title' => $this->name,
@@ -189,7 +180,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
      *
      * @param Google_Service_Sheets_Spreadsheet $spreadSheet
      */
-    public function setSpreadSheet(Google_Service_Sheets_Spreadsheet $spreadSheet)
+    public function setSpreadSheet(Google_Service_Sheets_Spreadsheet $spreadSheet) : void
     {
         $this->_spreadSheet = $spreadSheet;
     }
@@ -227,7 +218,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
             return (array)$data;
         }
 
-        throw new Exception('неизвестный тип в response->data');
+        throw new Exception('Неизвестный тип в response->data');
     }
 
     /**
@@ -268,8 +259,9 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
      * @param string $data
      * @return Google_Service_Sheets_CellData
      */
-    protected function createCell(string $data)
+    protected function createCell(string $data) : Google_Service_Sheets_CellData
     {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         return new Google_Service_Sheets_CellData([
             'userEnteredValue' => new Google_Service_Sheets_ExtendedValue([
                 'stringValue' => $data
@@ -284,7 +276,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
      * @return Google_Service_Sheets_RowData
      * @throws Exception
      */
-    protected function createRow($data)
+    protected function createRow($data) : Google_Service_Sheets_RowData
     {
         $data = $this->convertRow($data);
         $cells = [];
@@ -310,6 +302,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
             }
         }
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
         return new Google_Service_Sheets_RowData([
             'values' => $cells
         ]);
@@ -323,7 +316,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
      *
      * @param Google_Service_Sheets_RowData|null $row строка таблицы или null для отправки остатка буфера
      */
-    protected function sendRow(Google_Service_Sheets_RowData $row = null)
+    protected function sendRow(Google_Service_Sheets_RowData $row = null) : void
     {
         // инициализация массива
         if (empty($this->_rows)) {
@@ -338,6 +331,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
         // отправка запросов при переполнении буфера или сбросе
         if (! empty($this->_rows) && (! isset($row) || count($this->_rows) >= $this->rowsPerRequest)) {
             // создаем запрос на добавление строк в таблицу
+            /** @noinspection PhpMethodParametersCountMismatchInspection */
             $batchUpdateRequest = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
                 'requests' => [
                     new Google_Service_Sheets_Request([
@@ -371,7 +365,7 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
      *
      * @throws Exception
      */
-    public function format($response)
+    public function format($response) : Response
     {
         /** @var Response $response */
 
