@@ -5,18 +5,19 @@
 ```php
 'components' => [
     'google' => [
-        'class' => dicr\google\GoogleApi::class,
+        'class' => dicr\google\Google::class,
         'clientConfig' => [
             'client_id' => 'XXXXXXX.apps.googleusercontent.com',
-            'client_secret' => 'XXXXXXXX',
             'access_type' => 'offline',
             'prompt' => 'select_account consent',
-            'include_granted_scopes' => true,
-            'scopes' => [
+            'client_secret' => 'XXXXXXXX', // для простой авторизации
+            'credentials' => 'xxx', // см. Client::setAuthConfig
+            'scopes' => [           // см. Client::setScopes
                 Google_Service_Sheets::SPREADSHEETS,
                 Google_Service_Sheets::DRIVE,
                 Google_Service_Sheets::DRIVE_FILE
-            ]
+            ],
+            'include_granted_scopes' => true
         ]
     ]
 ];
@@ -28,7 +29,7 @@
 use Google\Client;
 use yii\helpers\Url;
 
-/** @var dicr\google\GoogleApi $google */
+/** @var dicr\google\Google $google */
 $google = Yii::$app->get('google');
 
 /** @var Client $client */
@@ -49,7 +50,7 @@ if ($client->isAccessTokenExpired()) {
     Yii::$app->user->returnUrl = Url::current();
 
     // настраиваем адрес обработчика кода ответа
-    $client->setRedirectUri($callbackUrl);
+    $client->setRedirectUri(Url::to(['my-module/google-callback'], true));
         
     // отправляем пользователя на страницу авторизации
     return $this->redirect($client->createAuthUrl(), 303);
