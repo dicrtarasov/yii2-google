@@ -3,7 +3,7 @@
  * @copyright 2019-2020 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 05.11.20 02:38:04
+ * @version 30.11.20 15:07:47
  */
 
 declare(strict_types = 1);
@@ -52,18 +52,18 @@ class Google extends Component
      * @see Client::__construct()
      * @link https://github.com/googleapis/google-api-php-client
      */
-    public $config = [];
+    public $clientConfig = [];
 
     /**
      * @inheritDoc
      */
     public function init() : void
     {
-        $this->config = $this->config ?: [];
+        $this->clientConfig = $this->clientConfig ?: [];
 
         // default Application Name
-        if (! isset($this->config['application_name'])) {
-            $this->config['application_name'] = Yii::$app->name;
+        if (! isset($this->clientConfig['application_name'])) {
+            $this->clientConfig['application_name'] = Yii::$app->name;
         }
     }
 
@@ -77,7 +77,7 @@ class Google extends Component
      */
     public function getClient(array $config = []) : Client
     {
-        return new Client(array_merge($this->config, $config));
+        return new Client(array_merge($this->clientConfig, $config));
     }
 
     /**
@@ -99,7 +99,7 @@ class Google extends Component
      */
     public function moduleToken(?array $token = null) : ?array
     {
-        $key = [__CLASS__, $this->config];
+        $key = [__CLASS__, $this->clientConfig];
 
         if (! empty($token)) {
             Yii::$app->cache->set($key, $token, $token['expires_in'] ?? null, new TagDependency([
