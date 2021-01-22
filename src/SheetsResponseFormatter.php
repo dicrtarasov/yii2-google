@@ -1,7 +1,9 @@
 <?php
-/**
+/*
+ * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
- * @version 08.07.20 08:05:22
+ * @license MIT
+ * @version 23.01.21 02:22:37
  */
 
 declare(strict_types = 1);
@@ -152,7 +154,6 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
     {
         if ($this->_spreadSheet === null) {
             // создаем по-умолчанию
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
             $spreadsheet = new Google_Service_Sheets_Spreadsheet(array_merge([
                 'properties' => new Google_Service_Sheets_SpreadsheetProperties([
                     'title' => $this->name,
@@ -261,7 +262,6 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
      */
     protected function createCell(string $data) : Google_Service_Sheets_CellData
     {
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
         return new Google_Service_Sheets_CellData([
             'userEnteredValue' => new Google_Service_Sheets_ExtendedValue([
                 'stringValue' => $data
@@ -302,7 +302,6 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
             }
         }
 
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
         return new Google_Service_Sheets_RowData([
             'values' => $cells
         ]);
@@ -331,7 +330,6 @@ class SheetsResponseFormatter extends Component implements ResponseFormatterInte
         // отправка запросов при переполнении буфера или сбросе
         if (! empty($this->_rows) && (! isset($row) || count($this->_rows) >= $this->rowsPerRequest)) {
             // создаем запрос на добавление строк в таблицу
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
             $batchUpdateRequest = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
                 'requests' => [
                     new Google_Service_Sheets_Request([
