@@ -1,13 +1,15 @@
 {
     "name": "dicr/yii2-google",
-    "description": "Google API integration for Yii2",
-    "license": "MIT",
     "type": "yii2-extension",
+    "license": "MIT",
+    "description": "Google API клиент для Yii2",
+    "keywords": ["dicr", "yii2", "google"],
     "homepage": "https://gitlab.com/dicr/yii2-google",
-    "keywords": ["dicr", "php", "yii2", "google"],
+
     "support": {
         "source": "https://gitlab.com/dicr/yii2-google.git"
     },
+
     "authors": [
         {
             "name": "Igor Tarasov",
@@ -16,17 +18,29 @@
             "role": "developer"
         }
     ],
+
     "autoload": {
         "psr-4": {
             "dicr\\google\\": "src/"
         }
     },
+
     "require": {
         "php": "~7.4 || ~8.0.1",
+
         "yiisoft/yii2": "~2.0",
-        "google/apiclient": "~2.8"
+
+        "dicr/yii2-json": "~2.0",
+
+        "google/apiclient": "~2.9"
     },
+
+    "require-dev": {
+        "roave/security-advisories": "dev-latest"
+    },
+
     "repositories": [
-        {"type": "composer", "url": "https://asset-packagist.org"}
+        {"type": "composer", "url": "https://asset-packagist.org"},
+        {"type": "git", "url": "https://gitlab.com/dicr/yii2-json.git"}
     ]
 }

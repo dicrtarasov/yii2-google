@@ -1,9 +1,9 @@
 <?php
 /*
- * @copyright 2019-2020 Dicr http://dicr.org
+ * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 30.11.20 15:07:47
+ * @version 09.04.21 03:03:30
  */
 
 declare(strict_types = 1);
@@ -17,6 +17,7 @@ use yii\caching\TagDependency;
 /**
  * Модуль для создания и конфигурации клиента Google.
  *
+ *
  * Авторизация работает в разных режимах:
  * - Web OAUTH - запрашивает доступ к данным пользователя и работает через токен.
  * - Service Account - работает от собственного сервисного аккаунта Google. Для доступа к данным, пользователь должен
@@ -26,7 +27,8 @@ use yii\caching\TagDependency;
  *
  * @link https://github.com/googleapis/google-api-php-client PHP-клиент с примерами и документацией
  * @link https://cloud.google.com/docs/authentication документация по авторизации Google
- * @link https://console.developers.google.com регистрация приложения и управление ключами доступа
+ * @link https://developers.google.com/identity/protocols/oauth2/web-server авторизация OAuth-клиента
+ * @link https://console.cloud.google.com/ настройка web-приложения
  */
 class Google extends Component
 {
@@ -57,7 +59,7 @@ class Google extends Component
     /**
      * @inheritDoc
      */
-    public function init() : void
+    public function init(): void
     {
         $this->clientConfig = $this->clientConfig ?: [];
 
@@ -75,7 +77,7 @@ class Google extends Component
      *
      * @return Client
      */
-    public function getClient(array $config = []) : Client
+    public function getClient(array $config = []): Client
     {
         return new Client(array_merge($this->clientConfig, $config));
     }
@@ -97,7 +99,7 @@ class Google extends Component
      * @param ?array $token если не null, то сохранить
      * @return ?array данные токена
      */
-    public function moduleToken(?array $token = null) : ?array
+    public function moduleToken(?array $token = null): ?array
     {
         $key = [__CLASS__, $this->clientConfig];
 
@@ -129,7 +131,7 @@ class Google extends Component
      * @param ?array $token если не null, то сохранить
      * @return array данные токена
      */
-    public static function sessionToken(?array $token = null) : ?array
+    public static function sessionToken(?array $token = null): ?array
     {
         $data = Yii::$app->session->get(__CLASS__, []);
 
