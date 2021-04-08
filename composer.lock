@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "96640781339c9230e3a935550c8b0593",
+    "content-hash": "6ceaa205c6f005fb22dc8ad62e8309bb",
     "packages": [
         {
             "name": "bower-asset/inputmask",
@@ -144,112 +144,6 @@
                 "source": "https://github.com/cebe/markdown"
             },
             "time": "2018-03-26T11:24:36+00:00"
-        },
-        {
-            "name": "dicr/yii2-json",
-            "version": "2.0.7",
-            "source": {
-                "type": "git",
-                "url": "https://gitlab.com/dicr/yii2-json.git",
-                "reference": "cd146ef412fa402c74282bbd52edbc0ea867f1f8"
-            },
-            "require": {
-                "dicr/yii2-validate": "~2.3",
-                "ext-json": "*",
-                "php": "~7.4 || ~8.0.1",
-                "yiisoft/yii2": "~2.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~9.5",
-                "roave/security-advisories": "dev-latest"
-            },
-            "type": "yii2-extension",
-            "autoload": {
-                "psr-4": {
-                    "dicr\\json\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "dicr\\tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Igor Tarasov",
-                    "email": "develop@dicr.org",
-                    "homepage": "http://dicr.org",
-                    "role": "developer"
-                }
-            ],
-            "description": "Модель данных Json для Yii2",
-            "homepage": "https://gitlab.com/dicr/yii2-json",
-            "keywords": [
-                "dicr",
-                "entity",
-                "json",
-                "yii2"
-            ],
-            "support": {
-                "source": "https://gitlab.com/dicr/yii2-json.git"
-            },
-            "time": "2021-03-31T14:12:56+00:00"
-        },
-        {
-            "name": "dicr/yii2-validate",
-            "version": "2.3.6",
-            "source": {
-                "type": "git",
-                "url": "https://gitlab.com/dicr/yii2-validate.git",
-                "reference": "7b3a8be031e0452cc90477b4434a97521a0016ef"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/dicr%2Fyii2-validate/repository/archive.zip?sha=7b3a8be031e0452cc90477b4434a97521a0016ef",
-                "reference": "7b3a8be031e0452cc90477b4434a97521a0016ef",
-                "shasum": ""
-            },
-            "require": {
-                "php": "~7.4 || ~8.0.1",
-                "yiisoft/yii2": "~2.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~9.5",
-                "roave/security-advisories": "dev-latest"
-            },
-            "type": "yii2-extension",
-            "autoload": {
-                "psr-4": {
-                    "dicr\\validate\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Igor Tarasov",
-                    "email": "develop@dicr.org",
-                    "homepage": "http://dicr.org",
-                    "role": "developer"
-                }
-            ],
-            "description": "Компоненты парсинга и валидации данных для Yii2",
-            "homepage": "https://gitlab.com/dicr/yii2-validate",
-            "keywords": [
-                "dicr",
-                "validate",
-                "yii2"
-            ],
-            "support": {
-                "issues": "https://gitlab.com/api/v4/projects/9711109/issues",
-                "source": "https://gitlab.com/dicr/yii2-validate.git"
-            },
-            "time": "2021-04-02T19:42:17+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",

@@ -30,8 +30,6 @@
 
         "yiisoft/yii2": "~2.0",
 
-        "dicr/yii2-json": "~2.0",
-
         "google/apiclient": "~2.9"
     },
 
@@ -40,7 +38,6 @@
     },
 
     "repositories": [
-        {"type": "composer", "url": "https://asset-packagist.org"},
-        {"type": "git", "url": "https://gitlab.com/dicr/yii2-json.git"}
+        {"type": "composer", "url": "https://asset-packagist.org"}
     ]
 }
