@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 09.04.21 03:03:30
+ * @version 09.04.21 06:57:40
  */
 
 declare(strict_types = 1);
@@ -13,6 +13,7 @@ use Google\Client;
 use Yii;
 use yii\base\Component;
 use yii\caching\TagDependency;
+use yii\helpers\Url;
 
 /**
  * Модуль для создания и конфигурации клиента Google.
@@ -39,16 +40,24 @@ class Google extends Component
      *
      * Пример:
      * [
+     *  // все параметры могут быть заданы в скачанном JSON-файле
+     *  'credentials' => 'xxx', // путь к файлу параметров авторизации либо массив параметров (setAuthConfig)
+     *
+     *   // либо параметры приложения устанавливаеются вручную
      *  'client_id' => 'xxx',
      *  'client_secret' => 'xxx',
-     *  'credentials' => 'xxx', // путь к файлу параметров авторизации либо массив параметров (setAuthConfig)
+     *
+     *  // запрошенные права приложения
      *  'scopes' => [
      *      Google_Service_Oauth2::USERINFO_EMAIL,
      *      Google_Service_Oauth2::USERINFO_PROFILE
      *  ]
+     *
+     *  // для получения refreshToken для обновления без пользователя
      *  'access_type' => 'offline',
      *  'prompt' => 'select_account consent',
-     *  'include_granted_scopes' => true
+     *  'include_granted_scopes' => true,
+     *  'redirect_uri' => ['/oauth/google'], // обрабатывается отдельно, конвертируется в полный адрес
      * ]
      * ```
      * @see Client::__construct()
@@ -61,6 +70,8 @@ class Google extends Component
      */
     public function init(): void
     {
+        parent::init();
+
         $this->clientConfig = $this->clientConfig ?: [];
 
         // default Application Name
@@ -79,7 +90,18 @@ class Google extends Component
      */
     public function getClient(array $config = []): Client
     {
-        return new Client(array_merge($this->clientConfig, $config));
+        // создаем клиент
+        $client = new Client(array_merge($this->clientConfig, $config));
+
+        // так как redirect_uri в конфиге перезаписывается файлом credentials,
+        // то устанавливаем его дополнительно после создания клиента
+        if (! empty($this->redirectUri)) {
+            $client->setRedirectUri(Url::to($this->redirectUri, true));
+        } elseif (! empty($config['redirect_uri'])) {
+            $client->setRedirectUri(Url::to($config['redirect_uri'], true));
+        }
+
+        return $client;
     }
 
     /**
