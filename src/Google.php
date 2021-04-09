@@ -3,7 +3,7 @@
  * @copyright 2019-2021 Dicr http://dicr.org
  * @author Igor A Tarasov <develop@dicr.org>
  * @license MIT
- * @version 09.04.21 06:57:40
+ * @version 09.04.21 07:12:21
  */
 
 declare(strict_types = 1);
@@ -14,6 +14,8 @@ use Yii;
 use yii\base\Component;
 use yii\caching\TagDependency;
 use yii\helpers\Url;
+
+use function array_merge;
 
 /**
  * Модуль для создания и конфигурации клиента Google.
@@ -90,14 +92,15 @@ class Google extends Component
      */
     public function getClient(array $config = []): Client
     {
+        // объединяем с конфигом по-умолчанию
+        $config = array_merge($this->clientConfig, $config);
+
         // создаем клиент
-        $client = new Client(array_merge($this->clientConfig, $config));
+        $client = new Client($config);
 
         // так как redirect_uri в конфиге перезаписывается файлом credentials,
         // то устанавливаем его дополнительно после создания клиента
-        if (! empty($this->redirectUri)) {
-            $client->setRedirectUri(Url::to($this->redirectUri, true));
-        } elseif (! empty($config['redirect_uri'])) {
+        if (! empty($config['redirect_uri'])) {
             $client->setRedirectUri(Url::to($config['redirect_uri'], true));
         }
 
